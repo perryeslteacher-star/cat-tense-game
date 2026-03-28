@@ -63,20 +63,17 @@
     </div>
 
     <script>
-        // ==========================================
-        // 1. 填入你的 Google Sheet 部署網址 (最重要的部分)
-        // ==========================================
-        const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbzyg8mlidFp3RHcy6dS8OB01B_m6pRA76NrpBt16gzReyO82h4cfbXeKJ_A04tOJK2_/exec";
+        // 更新後的 Google Apps Script 網址
+        const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbwyaWqtCF3ys03pQLrJT72_t2tNHH_Y3Ba40m1JKI4_AEGsRbE68Fhz9cDq4-Xo0VS3/exec";
 
         const state = { questions: [], currentIndex: 0, bossHp: 100, playerHp: 100, isBusy: false, voices: [] };
 
-        // 語音加載
         function loadVoices() { state.voices = window.speechSynthesis.getVoices(); }
         window.speechSynthesis.onvoiceschanged = loadVoices;
 
-        // 2. 從 Google Sheet 隔空攞數據
         window.onload = () => {
             loadVoices();
+            // 嘗試從雲端抓取題目
             fetch(SHEET_API_URL)
                 .then(res => res.json())
                 .then(data => {
@@ -85,12 +82,12 @@
                 })
                 .catch(err => {
                     document.getElementById('questionBox').innerText = "ERROR: Cloud Connection Failed! ❌";
-                    console.error(err);
+                    console.error('Debug:', err);
                 });
         };
 
         function resetGame() {
-            if (state.questions.length === 0) return;
+            if (!state.questions || state.questions.length === 0) return;
             state.currentIndex = 0; state.bossHp = 100; state.playerHp = 100; state.isBusy = false;
             state.questions = state.questions.sort(() => Math.random() - 0.5);
             updateBars();
@@ -123,13 +120,11 @@
             if (state.isBusy) return;
             state.isBusy = true;
             
-            // 語音朗讀
             const utter = new SpeechSynthesisUtterance(selected);
             utter.lang = 'en-US';
             window.speechSynthesis.speak(utter);
 
-            const isCorrect = (String(selected) === String(correct));
-            if (isCorrect) {
+            if (String(selected) === String(correct)) {
                 state.bossHp -= Math.ceil(100 / state.questions.length);
                 btn.style.background = "var(--neon-green)";
                 document.getElementById('bossAvatar').style.filter = "invert(1) sepia(1) saturate(5) hue-rotate(300deg)";
@@ -151,7 +146,6 @@
             document.getElementById('playerHp').style.width = Math.max(0, state.playerHp) + "%";
         }
 
-        // 搞笑 8-bit 音樂旋律
         let audioCtx; let isBgm = false; let bgmInt;
         function toggleBGM() {
             if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
