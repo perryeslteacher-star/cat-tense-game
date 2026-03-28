@@ -3,93 +3,178 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TENSES WARRIOR: CAT EDITION</title>
+    <title>TENSES WARRIOR: CLOUD EDITION</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Noto+Sans+TC:wght@700;900&display=swap" rel="stylesheet">
     <style>
-        :root { --neon-blue: #00f2ff; --neon-pink: #ff0055; --neon-yellow: #f8b500; --glass: rgba(20, 20, 35, 0.95); }
-        body { font-family: 'Noto Sans TC', sans-serif; background: #05050a; color: white; margin: 0; min-height: 100vh; overflow-x: hidden; display: flex; flex-direction: column; }
+        :root { --neon-blue: #00f2ff; --neon-pink: #ff0055; --neon-yellow: #f8b500; --neon-green: #39ff14; --glass: rgba(20, 20, 35, 0.95); }
+        body { font-family: 'Noto Sans TC', sans-serif; background: #05050a; color: white; margin: 0; min-height: 100vh; overflow-y: auto; display: flex; flex-direction: column; }
+        
         .top-nav { display: flex; flex-wrap: wrap; justify-content: center; padding: 15px; background: #111; border-bottom: 3px solid var(--neon-blue); gap: 10px; }
-        .nav-btn { background: var(--glass); border: 2px solid var(--neon-blue); color: var(--neon-blue); padding: 8px 12px; border-radius: 10px; cursor: pointer; font-size: 14px; font-family: 'Orbitron'; transition: 0.2s; }
+        .nav-btn { background: var(--glass); border: 2px solid var(--neon-blue); color: var(--neon-blue); padding: 10px 15px; border-radius: 12px; cursor: pointer; font-size: 16px; font-family: 'Orbitron'; transition: 0.2s; flex: 1; min-width: 120px; text-align: center; }
         .nav-btn:active { transform: scale(0.9); background: var(--neon-blue); color: black; }
-        .game-arena { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 20px; gap: 15px; }
+        
+        .game-arena { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 20px; gap: 20px; }
         .avatar { font-size: 80px; filter: drop-shadow(0 0 15px white); transition: 0.3s; }
-        .hp-bar { width: 200px; height: 15px; background: #333; border: 2px solid #555; border-radius: 10px; overflow: hidden; }
-        .hp-inner { height: 100%; width: 100%; transition: 0.5s; }
-        .quiz-container { background: var(--glass); border: 2px solid var(--neon-blue); border-radius: 20px; padding: 20px; width: 90%; max-width: 500px; font-size: 22px; text-align: center; }
-        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 90%; max-width: 500px; margin-bottom: 20px; }
-        .opt-btn { background: rgba(255,255,255,0.1); border: 2px solid var(--neon-blue); color: white; padding: 15px; border-radius: 12px; font-size: 18px; font-weight: bold; cursor: pointer; transition: 0.2s; }
-        .opt-btn:active { transform: scale(0.95); }
-        @keyframes jiggle { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1) rotate(5deg); } }
-        .correct-anim { background: var(--neon-green) !important; color: black !important; animation: jiggle 0.3s; }
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 100; flex-direction: column; align-items: center; justify-content: center; }
-        .modal-content { background: #1a1a2e; border: 3px solid var(--neon-blue); border-radius: 20px; padding: 20px; width: 85%; max-width: 400px; }
+        .hp-bar-outer { width: 250px; height: 22px; background: #333; border-radius: 15px; border: 3px solid #555; overflow: hidden; }
+        .hp-bar-inner { height: 100%; width: 100%; transition: 0.5s; }
+
+        .quiz-container { background: var(--glass); border: 2px solid var(--neon-blue); border-radius: 20px; padding: 20px; width: 90%; max-width: 600px; font-size: 26px; text-align: center; box-shadow: 0 0 30px rgba(0,242,255,0.2); }
+        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 90%; max-width: 600px; padding: 20px; margin-bottom: 30px; }
+        .opt-btn { background: rgba(255,255,255,0.05); border: 3px solid var(--neon-blue); color: white; padding: 20px; border-radius: 15px; font-size: 24px; font-weight: 900; cursor: pointer; transition: 0.2s; }
+        .opt-btn:active { transform: scale(0.85) rotate(-5deg); }
+
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 100; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+        .modal-content { background: #1a1a2e; border: 4px solid var(--neon-blue); border-radius: 25px; width: 95%; max-width: 600px; padding: 25px; font-size: 20px; }
+        .close-btn { background: var(--neon-pink); color: white; border: none; padding: 15px; border-radius: 15px; font-size: 22px; font-weight: bold; width: 100%; margin-top: 20px; cursor: pointer; }
     </style>
 </head>
 <body>
+
     <div class="top-nav">
-        <button class="nav-btn" onclick="toggleBGM()">🎵 BGM: OFF</button>
-        <button class="nav-btn" onclick="showModal('grammarModal')">📖 RULES</button>
-        <button class="nav-btn" style="border-color:var(--neon-pink)" onclick="location.reload()">🔄 RESET</button>
+        <button class="nav-btn" id="bgmBtn" onclick="toggleBGM()">🎵 BGM: OFF</button>
+        <button class="nav-btn" style="border-color:var(--neon-pink)" onclick="resetGame()">🔄 RESET</button>
+        <button class="nav-btn" onclick="showModal('grammarModal')">📖 GRAMMAR</button>
     </div>
+
     <div class="game-arena">
-        <div><div id="bossAvatar" class="avatar">😾</div><div class="hp-bar"><div id="bossHp" class="hp-inner" style="background:red"></div></div></div>
-        <div class="quiz-container" id="questionBox">LOADING...</div>
-        <div><div class="hp-bar"><div id="playerHp" class="hp-inner" style="background:cyan"></div></div><div id="playerAvatar" class="avatar">🐱‍👤</div></div>
+        <div style="text-align: center;">
+            <div id="bossAvatar" class="avatar">😾</div>
+            <div class="hp-bar-outer"><div id="bossHp" class="hp-bar-inner" style="background:linear-gradient(90deg, #ff0055, #ff6b6b)"></div></div>
+        </div>
+
+        <div class="quiz-container" id="questionBox">CONNECTING TO CLOUD... ⏳</div>
+
+        <div style="text-align: center;">
+            <div class="hp-bar-outer"><div id="playerHp" class="hp-bar-inner" style="background:linear-gradient(90deg, #00f2ff, #0062ff)"></div></div>
+            <div id="playerAvatar" class="avatar">🐱‍👤</div>
+        </div>
     </div>
+
     <div class="options-grid" id="optionsBox"></div>
 
     <div id="grammarModal" class="modal">
         <div class="modal-content">
-            <h3>Tense Rules ⏳</h3>
+            <h2 style="color:var(--neon-yellow)">Tense Secrets ⏳</h2>
             <p>🔄 Every day -> eat / eats</p>
-            <p>⚡ Now -> am/is/are eating</p>
+            <p>⚡ Now -> am/is/are + ing</p>
             <p>⏪ Yesterday -> ate / -ed</p>
-            <button class="nav-btn" onclick="closeModal()">CLOSE</button>
+            <button class="close-btn" onclick="closeModal()">CLOSE</button>
         </div>
     </div>
 
     <script>
-        const questions = [
-            { q: "I _____ (go) to the park yesterday.", options: ["go", "went", "going"], answer: "went" },
-            { q: "Look! The cat _____ (sleep) now.", options: ["sleep", "is sleeping", "slept"], answer: "is sleeping" },
-            { q: "She always _____ (eat) apples.", options: ["eat", "is eating", "drinks", "eats"], answer: "eats" },
-            { q: "They _____ (buy) a new car last week.", options: ["buy", "bought", "buying"], answer: "bought" }
-        ];
-        let currentIdx = 0; let bossHp = 100;
+        // ==========================================
+        // 1. 填入你的 Google Sheet 部署網址 (最重要的部分)
+        // ==========================================
+        const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbzyg8mlidFp3RHcy6dS8OB01B_m6pRA76NrpBt16gzReyO82h4cfbXeKJ_A04tOJK2_/exec";
+
+        const state = { questions: [], currentIndex: 0, bossHp: 100, playerHp: 100, isBusy: false, voices: [] };
+
+        // 語音加載
+        function loadVoices() { state.voices = window.speechSynthesis.getVoices(); }
+        window.speechSynthesis.onvoiceschanged = loadVoices;
+
+        // 2. 從 Google Sheet 隔空攞數據
+        window.onload = () => {
+            loadVoices();
+            fetch(SHEET_API_URL)
+                .then(res => res.json())
+                .then(data => {
+                    state.questions = data;
+                    resetGame();
+                })
+                .catch(err => {
+                    document.getElementById('questionBox').innerText = "ERROR: Cloud Connection Failed! ❌";
+                    console.error(err);
+                });
+        };
+
+        function resetGame() {
+            if (state.questions.length === 0) return;
+            state.currentIndex = 0; state.bossHp = 100; state.playerHp = 100; state.isBusy = false;
+            state.questions = state.questions.sort(() => Math.random() - 0.5);
+            updateBars();
+            loadQuestion();
+        }
 
         function loadQuestion() {
-            if(bossHp <= 0 || currentIdx >= questions.length) { document.getElementById('questionBox').innerText = "🏆 VICTORY!"; return; }
-            const q = questions[currentIdx];
-            document.getElementById('questionBox').innerText = q.q;
-            const box = document.getElementById('optionsBox'); box.innerHTML = '';
-            q.options.forEach(opt => {
-                const btn = document.createElement('button'); btn.className = 'opt-btn'; btn.innerText = opt;
-                btn.onclick = () => {
-                    window.speechSynthesis.speak(new SpeechSynthesisUtterance(opt));
-                    if(opt === q.answer) { bossHp -= 25; document.getElementById('bossHp').style.width = bossHp + "%"; currentIdx++; loadQuestion(); }
-                    else { alert("Try again!"); }
-                };
+            if (state.bossHp <= 0 || state.playerHp <= 0 || state.currentIndex >= state.questions.length) {
+                setTimeout(() => {
+                    alert(state.bossHp <= 0 ? "🏆 MISSION CLEARED!" : "💀 GAME OVER!");
+                    resetGame();
+                }, 500);
+                return;
+            }
+            state.isBusy = false;
+            const qData = state.questions[state.currentIndex];
+            document.getElementById('questionBox').innerHTML = `<span style="font-size:16px; color:var(--neon-green);">WAVE ${state.currentIndex + 1}</span><br>${qData.q}`;
+            
+            const box = document.getElementById('optionsBox');
+            box.innerHTML = '';
+            qData.options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'opt-btn'; btn.innerText = opt;
+                btn.onclick = () => handleChoice(opt, qData.answer, btn);
                 box.appendChild(btn);
             });
         }
 
-        // BGM 邏輯 (8-bit Funny)
+        function handleChoice(selected, correct, btn) {
+            if (state.isBusy) return;
+            state.isBusy = true;
+            
+            // 語音朗讀
+            const utter = new SpeechSynthesisUtterance(selected);
+            utter.lang = 'en-US';
+            window.speechSynthesis.speak(utter);
+
+            const isCorrect = (String(selected) === String(correct));
+            if (isCorrect) {
+                state.bossHp -= Math.ceil(100 / state.questions.length);
+                btn.style.background = "var(--neon-green)";
+                document.getElementById('bossAvatar').style.filter = "invert(1) sepia(1) saturate(5) hue-rotate(300deg)";
+            } else {
+                state.playerHp -= 25;
+                btn.style.background = "var(--neon-pink)";
+                document.getElementById('playerAvatar').style.filter = "invert(1) sepia(1) saturate(5) hue-rotate(0deg)";
+            }
+            updateBars();
+            setTimeout(() => {
+                document.getElementById('bossAvatar').style.filter = "none";
+                document.getElementById('playerAvatar').style.filter = "none";
+                state.currentIndex++; loadQuestion();
+            }, 1500);
+        }
+
+        function updateBars() {
+            document.getElementById('bossHp').style.width = Math.max(0, state.bossHp) + "%";
+            document.getElementById('playerHp').style.width = Math.max(0, state.playerHp) + "%";
+        }
+
+        // 搞笑 8-bit 音樂旋律
         let audioCtx; let isBgm = false; let bgmInt;
         function toggleBGM() {
             if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             isBgm = !isBgm;
-            if(isBgm) { bgmInt = setInterval(() => {
-                const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
-                osc.connect(gain); gain.connect(audioCtx.destination);
-                osc.frequency.setValueAtTime([523, 659, 783][Math.floor(Math.random()*3)], audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
-                osc.start(); osc.stop(audioCtx.currentTime + 0.2);
-            }, 300); } else { clearInterval(bgmInt); }
+            const btn = document.getElementById('bgmBtn');
+            if(isBgm) {
+                btn.innerText = "🔊 BGM: ON";
+                bgmInt = setInterval(() => {
+                    const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+                    osc.connect(gain); gain.connect(audioCtx.destination);
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime([523, 659, 783, 659][Math.floor(Math.random()*4)], audioCtx.currentTime);
+                    gain.gain.setTargetAtTime(0.05, audioCtx.currentTime, 0.1);
+                    osc.start(); osc.stop(audioCtx.currentTime + 0.2);
+                }, 250);
+            } else {
+                btn.innerText = "🎵 BGM: OFF";
+                clearInterval(bgmInt);
+            }
         }
 
         function showModal(id) { document.getElementById(id).style.display = 'flex'; }
         function closeModal() { document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); }
-        window.onload = loadQuestion;
     </script>
 </body>
 </html>
