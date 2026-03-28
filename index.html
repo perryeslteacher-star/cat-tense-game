@@ -8,64 +8,85 @@
     <style>
         :root { --neon-blue: #00f2ff; --neon-pink: #ff0055; --neon-green: #39ff14; --glass: rgba(20, 20, 35, 0.95); }
         body { font-family: 'Noto Sans TC', sans-serif; background: #05050a; color: white; margin: 0; min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
-        .top-nav { display: flex; justify-content: space-around; padding: 15px; background: #111; border-bottom: 3px solid var(--neon-blue); }
+        .top-nav { display: flex; justify-content: space-around; padding: 15px; background: #111; border-bottom: 3px solid var(--neon-blue); align-items: center; }
         .nav-btn { background: var(--glass); border: 2px solid var(--neon-blue); color: var(--neon-blue); padding: 8px 15px; border-radius: 10px; cursor: pointer; font-family: 'Orbitron'; font-size: 14px; }
         .game-arena { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; gap: 20px; }
         .avatar { font-size: 80px; filter: drop-shadow(0 0 10px white); transition: 0.3s; }
         .hp-bar { width: 200px; height: 15px; background: #333; border-radius: 10px; border: 2px solid #555; overflow: hidden; }
         .hp-inner { height: 100%; transition: 0.5s; width: 100%; }
-        .quiz-container { background: var(--glass); border: 2px solid var(--neon-blue); border-radius: 20px; padding: 25px; width: 90%; max-width: 500px; text-align: center; font-size: 24px; box-shadow: 0 0 20px rgba(0,242,255,0.2); }
-        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 90%; max-width: 500px; margin-bottom: 20px; }
+        .quiz-container { background: var(--glass); border: 2px solid var(--neon-blue); border-radius: 20px; padding: 25px; width: 90%; max-width: 500px; text-align: center; font-size: 24px; box-shadow: 0 0 20px rgba(0,242,255,0.2); min-height: 100px; display: flex; align-items: center; justify-content: center; }
+        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 90%; max-width: 500px; margin-bottom: 20px; min-height: 150px; }
         .opt-btn { background: rgba(255,255,255,0.05); border: 2px solid var(--neon-blue); color: white; padding: 18px; border-radius: 12px; font-size: 20px; font-weight: 900; cursor: pointer; transition: 0.2s; }
         .opt-btn:active { transform: scale(0.9); }
-        /* 名字輸入框樣式 */
+        
+        /* 名字輸入框彈窗 */
         .modal { display: flex; position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 1000; flex-direction: column; align-items: center; justify-content: center; }
-        input { background: #222; border: 2px solid var(--neon-blue); color: white; padding: 15px; font-size: 20px; border-radius: 10px; margin: 20px; width: 250px; text-align: center; }
+        input { background: #222; border: 2px solid var(--neon-blue); color: white; padding: 15px; font-size: 20px; border-radius: 10px; margin: 20px; width: 250px; text-align: center; outline: none; }
+        input:focus { box-shadow: 0 0 15px var(--neon-blue); }
     </style>
 </head>
 <body>
 
     <div id="nameModal" class="modal">
-        <h2 style="color:var(--neon-blue); font-family:'Orbitron'">ENTER YOUR NAME</h2>
-        <input type="text" id="playerName" placeholder="Student Name...">
+        <h2 style="color:var(--neon-blue); font-family:'Orbitron'; letter-spacing: 2px;">ENTER YOUR NAME</h2>
+        <input type="text" id="playerName" placeholder="Type name here...">
         <button class="nav-btn" style="font-size:20px; padding:15px 40px" onclick="startGame()">START MISSION</button>
     </div>
 
     <div class="top-nav">
-        <div id="displayPlayerName" style="color:var(--neon-yellow); font-weight:bold;">忍者貓</div>
+        <div id="displayPlayerName" style="color:var(--neon-yellow); font-weight:bold; font-size: 18px;">WAITING...</div>
         <button class="nav-btn" onclick="location.reload()">🔄 RESET</button>
     </div>
 
     <div class="game-arena">
-        <div><div id="bossAvatar" class="avatar">😾</div><div class="hp-bar"><div id="bossHp" class="hp-inner" style="background:red"></div></div></div>
-        <div class="quiz-container" id="questionBox">CONNECTING...</div>
-        <div><div class="hp-bar"><div id="playerHp" class="hp-inner" style="background:cyan"></div></div><div class="avatar">🐱‍👤</div></div>
+        <div>
+            <div id="bossAvatar" class="avatar">😾</div>
+            <div class="hp-bar"><div id="bossHp" class="hp-inner" style="background:linear-gradient(90deg, #ff0055, #ff6b6b)"></div></div>
+        </div>
+
+        <div class="quiz-container" id="questionBox">READY?</div>
+
+        <div>
+            <div class="hp-bar"><div id="playerHp" class="hp-inner" style="background:linear-gradient(90deg, #00f2ff, #0062ff)"></div></div>
+            <div id="playerAvatar" class="avatar">🐱‍👤</div>
+        </div>
     </div>
 
     <div class="options-grid" id="optionsBox"></div>
 
     <script>
+        // 你提供的最新 Google Apps Script URL
         const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbwKcbX4IQtzwMVYWBfs8wjwMz8F63uGmmCSPXHYcrq6t5ftTz_akZ6JUiVfxpGDRIPN/exec";
-        const state = { questions: [], currentIndex: 0, bossHp: 100, playerHp: 100, playerName: "" };
+        
+        let state = { questions: [], currentIndex: 0, bossHp: 100, playerHp: 100, playerName: "", isLocked: false };
 
+        // 1. 撳掣開始遊戲
         function startGame() {
-            const name = document.getElementById('playerName').value;
-            if(!name) { alert("Please enter your name!"); return; }
-            state.playerName = name;
-            document.getElementById('displayPlayerName').innerText = "PLAYER: " + name;
+            const nameInput = document.getElementById('playerName').value.trim();
+            if(!nameInput) { alert("Please enter your name!"); return; }
+            state.playerName = nameInput;
+            document.getElementById('displayPlayerName').innerText = "PLAYER: " + nameInput;
             document.getElementById('nameModal').style.display = 'none';
-            fetchData();
+            document.getElementById('questionBox').innerText = "CONNECTING TO CLOUD... ⏳";
+            fetchQuestions();
         }
 
-        function fetchData() {
+        // 2. 攞題目
+        function fetchQuestions() {
             fetch(SHEET_API_URL)
                 .then(res => res.json())
                 .then(data => {
+                    if(!data || data.length === 0) throw new Error("No data");
                     state.questions = data.sort(() => Math.random() - 0.5);
                     loadQuestion();
+                })
+                .catch(err => {
+                    document.getElementById('questionBox').innerText = "ERROR: Cloud Fail! ❌";
+                    console.error(err);
                 });
         }
 
+        // 3. 顯示題目
         function loadQuestion() {
             if(state.bossHp <= 0 || state.currentIndex >= state.questions.length) {
                 endGame(true); return;
@@ -73,38 +94,62 @@
             if(state.playerHp <= 0) {
                 endGame(false); return;
             }
+
+            state.isLocked = false;
             const q = state.questions[state.currentIndex];
             document.getElementById('questionBox').innerText = q.q;
-            const box = document.getElementById('optionsBox'); box.innerHTML = '';
+            const box = document.getElementById('optionsBox'); 
+            box.innerHTML = '';
+
             q.options.forEach(opt => {
-                const btn = document.createElement('button'); btn.className = 'opt-btn'; btn.innerText = opt;
-                btn.onclick = () => {
-                    window.speechSynthesis.speak(new SpeechSynthesisUtterance(opt));
-                    if(opt === q.answer) {
-                        state.bossHp -= Math.ceil(100 / state.questions.length);
-                        document.getElementById('bossHp').style.width = state.bossHp + "%";
-                        state.currentIndex++; loadQuestion();
-                    } else {
-                        state.playerHp -= 25;
-                        document.getElementById('playerHp').style.width = state.playerHp + "%";
-                        if(state.playerHp <= 0) endGame(false);
-                    }
-                };
+                const btn = document.createElement('button'); 
+                btn.className = 'opt-btn'; 
+                btn.innerText = opt;
+                btn.onclick = () => handleAnswer(opt, q.answer, btn);
                 box.appendChild(btn);
             });
         }
 
-        function endGame(win) {
-            const score = Math.max(0, state.bossHp <= 0 ? 100 : Math.round((state.currentIndex / state.questions.length) * 100));
-            document.getElementById('questionBox').innerHTML = win ? "🏆 MISSION CLEARED!<br>Uploading Score..." : "💀 GAME OVER!<br>Uploading Score...";
+        // 4. 處理答案
+        function handleAnswer(selected, correct, btn) {
+            if(state.isLocked) return;
+            state.isLocked = true;
+
+            // 語音朗讀
+            window.speechSynthesis.speak(new SpeechSynthesisUtterance(selected));
+
+            if(String(selected) === String(correct)) {
+                btn.style.background = "var(--neon-green)";
+                btn.style.color = "black";
+                state.bossHp -= Math.ceil(100 / state.questions.length);
+                document.getElementById('bossHp').style.width = Math.max(0, state.bossHp) + "%";
+            } else {
+                btn.style.background = "var(--neon-pink)";
+                state.playerHp -= 25;
+                document.getElementById('playerHp').style.width = Math.max(0, state.playerHp) + "%";
+            }
+
+            setTimeout(() => {
+                state.currentIndex++;
+                loadQuestion();
+            }, 1000);
+        }
+
+        // 5. 完場並回傳分數
+        function endGame(isWin) {
+            const finalScore = isWin ? 100 : Math.round((state.currentIndex / state.questions.length) * 100);
+            document.getElementById('questionBox').innerHTML = isWin ? "🏆 MISSION CLEARED!<br>Saving to Cloud..." : "💀 GAME OVER!<br>Saving to Cloud...";
             document.getElementById('optionsBox').innerHTML = '';
 
-            // 數據回收魔法：傳分數返 Google Sheet
+            // 使用 POST 傳送數據返 Google Sheet
             fetch(SHEET_API_URL, {
                 method: "POST",
-                body: JSON.stringify({ name: state.playerName, score: score + "/100" })
+                mode: "no-cors", // 避免瀏覽器攔截
+                body: JSON.stringify({ name: state.playerName, score: finalScore + "/100" })
             }).then(() => {
-                document.getElementById('questionBox').innerHTML += "<br>✅ Score Saved!";
+                document.getElementById('questionBox').innerHTML += "<br><span style='color:var(--neon-green)'>✅ Score Recorded!</span>";
+            }).catch(err => {
+                document.getElementById('questionBox').innerHTML += "<br>❌ Save Failed";
             });
         }
     </script>
