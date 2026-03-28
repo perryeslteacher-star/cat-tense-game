@@ -3,172 +3,110 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TENSES WARRIOR: CLOUD EDITION</title>
+    <title>CAT TENSES: TEACHER EDITION</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Noto+Sans+TC:wght@700;900&display=swap" rel="stylesheet">
     <style>
-        :root { --neon-blue: #00f2ff; --neon-pink: #ff0055; --neon-yellow: #f8b500; --neon-green: #39ff14; --glass: rgba(20, 20, 35, 0.95); }
-        body { font-family: 'Noto Sans TC', sans-serif; background: #05050a; color: white; margin: 0; min-height: 100vh; overflow-y: auto; display: flex; flex-direction: column; }
-        
-        .top-nav { display: flex; flex-wrap: wrap; justify-content: center; padding: 15px; background: #111; border-bottom: 3px solid var(--neon-blue); gap: 10px; }
-        .nav-btn { background: var(--glass); border: 2px solid var(--neon-blue); color: var(--neon-blue); padding: 10px 15px; border-radius: 12px; cursor: pointer; font-size: 16px; font-family: 'Orbitron'; transition: 0.2s; flex: 1; min-width: 120px; text-align: center; }
-        .nav-btn:active { transform: scale(0.9); background: var(--neon-blue); color: black; }
-        
-        .game-arena { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 20px; gap: 20px; }
-        .avatar { font-size: 80px; filter: drop-shadow(0 0 15px white); transition: 0.3s; }
-        .hp-bar-outer { width: 250px; height: 22px; background: #333; border-radius: 15px; border: 3px solid #555; overflow: hidden; }
-        .hp-bar-inner { height: 100%; width: 100%; transition: 0.5s; }
-
-        .quiz-container { background: var(--glass); border: 2px solid var(--neon-blue); border-radius: 20px; padding: 20px; width: 90%; max-width: 600px; font-size: 26px; text-align: center; box-shadow: 0 0 30px rgba(0,242,255,0.2); }
-        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 90%; max-width: 600px; padding: 20px; margin-bottom: 30px; }
-        .opt-btn { background: rgba(255,255,255,0.05); border: 3px solid var(--neon-blue); color: white; padding: 20px; border-radius: 15px; font-size: 24px; font-weight: 900; cursor: pointer; transition: 0.2s; }
-        .opt-btn:active { transform: scale(0.85) rotate(-5deg); }
-
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 100; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
-        .modal-content { background: #1a1a2e; border: 4px solid var(--neon-blue); border-radius: 25px; width: 95%; max-width: 600px; padding: 25px; font-size: 20px; }
-        .close-btn { background: var(--neon-pink); color: white; border: none; padding: 15px; border-radius: 15px; font-size: 22px; font-weight: bold; width: 100%; margin-top: 20px; cursor: pointer; }
+        :root { --neon-blue: #00f2ff; --neon-pink: #ff0055; --neon-green: #39ff14; --glass: rgba(20, 20, 35, 0.95); }
+        body { font-family: 'Noto Sans TC', sans-serif; background: #05050a; color: white; margin: 0; min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
+        .top-nav { display: flex; justify-content: space-around; padding: 15px; background: #111; border-bottom: 3px solid var(--neon-blue); }
+        .nav-btn { background: var(--glass); border: 2px solid var(--neon-blue); color: var(--neon-blue); padding: 8px 15px; border-radius: 10px; cursor: pointer; font-family: 'Orbitron'; font-size: 14px; }
+        .game-arena { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; gap: 20px; }
+        .avatar { font-size: 80px; filter: drop-shadow(0 0 10px white); transition: 0.3s; }
+        .hp-bar { width: 200px; height: 15px; background: #333; border-radius: 10px; border: 2px solid #555; overflow: hidden; }
+        .hp-inner { height: 100%; transition: 0.5s; width: 100%; }
+        .quiz-container { background: var(--glass); border: 2px solid var(--neon-blue); border-radius: 20px; padding: 25px; width: 90%; max-width: 500px; text-align: center; font-size: 24px; box-shadow: 0 0 20px rgba(0,242,255,0.2); }
+        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 90%; max-width: 500px; margin-bottom: 20px; }
+        .opt-btn { background: rgba(255,255,255,0.05); border: 2px solid var(--neon-blue); color: white; padding: 18px; border-radius: 12px; font-size: 20px; font-weight: 900; cursor: pointer; transition: 0.2s; }
+        .opt-btn:active { transform: scale(0.9); }
+        /* 名字輸入框樣式 */
+        .modal { display: flex; position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 1000; flex-direction: column; align-items: center; justify-content: center; }
+        input { background: #222; border: 2px solid var(--neon-blue); color: white; padding: 15px; font-size: 20px; border-radius: 10px; margin: 20px; width: 250px; text-align: center; }
     </style>
 </head>
 <body>
 
+    <div id="nameModal" class="modal">
+        <h2 style="color:var(--neon-blue); font-family:'Orbitron'">ENTER YOUR NAME</h2>
+        <input type="text" id="playerName" placeholder="Student Name...">
+        <button class="nav-btn" style="font-size:20px; padding:15px 40px" onclick="startGame()">START MISSION</button>
+    </div>
+
     <div class="top-nav">
-        <button class="nav-btn" id="bgmBtn" onclick="toggleBGM()">🎵 BGM: OFF</button>
-        <button class="nav-btn" style="border-color:var(--neon-pink)" onclick="resetGame()">🔄 RESET</button>
-        <button class="nav-btn" onclick="showModal('grammarModal')">📖 GRAMMAR</button>
+        <div id="displayPlayerName" style="color:var(--neon-yellow); font-weight:bold;">忍者貓</div>
+        <button class="nav-btn" onclick="location.reload()">🔄 RESET</button>
     </div>
 
     <div class="game-arena">
-        <div style="text-align: center;">
-            <div id="bossAvatar" class="avatar">😾</div>
-            <div class="hp-bar-outer"><div id="bossHp" class="hp-bar-inner" style="background:linear-gradient(90deg, #ff0055, #ff6b6b)"></div></div>
-        </div>
-
-        <div class="quiz-container" id="questionBox">CONNECTING TO CLOUD... ⏳</div>
-
-        <div style="text-align: center;">
-            <div class="hp-bar-outer"><div id="playerHp" class="hp-bar-inner" style="background:linear-gradient(90deg, #00f2ff, #0062ff)"></div></div>
-            <div id="playerAvatar" class="avatar">🐱‍👤</div>
-        </div>
+        <div><div id="bossAvatar" class="avatar">😾</div><div class="hp-bar"><div id="bossHp" class="hp-inner" style="background:red"></div></div></div>
+        <div class="quiz-container" id="questionBox">CONNECTING...</div>
+        <div><div class="hp-bar"><div id="playerHp" class="hp-inner" style="background:cyan"></div></div><div class="avatar">🐱‍👤</div></div>
     </div>
 
     <div class="options-grid" id="optionsBox"></div>
 
-    <div id="grammarModal" class="modal">
-        <div class="modal-content">
-            <h2 style="color:var(--neon-yellow)">Tense Secrets ⏳</h2>
-            <p>🔄 Every day -> eat / eats</p>
-            <p>⚡ Now -> am/is/are + ing</p>
-            <p>⏪ Yesterday -> ate / -ed</p>
-            <button class="close-btn" onclick="closeModal()">CLOSE</button>
-        </div>
-    </div>
-
     <script>
-        // 更新後的 Google Apps Script 網址
-        const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbzI4gkMOhvTstPd2cjM_kzvFGHWbsPd5BaptFH7NIcOtE0r9soQO6EctklGhD7x2JZ9BA/exec";
+        const SHEET_API_URL = "你的 Web App URL 貼喺呢度";
+        const state = { questions: [], currentIndex: 0, bossHp: 100, playerHp: 100, playerName: "" };
 
-        const state = { questions: [], currentIndex: 0, bossHp: 100, playerHp: 100, isBusy: false, voices: [] };
+        function startGame() {
+            const name = document.getElementById('playerName').value;
+            if(!name) { alert("Please enter your name!"); return; }
+            state.playerName = name;
+            document.getElementById('displayPlayerName').innerText = "PLAYER: " + name;
+            document.getElementById('nameModal').style.display = 'none';
+            fetchData();
+        }
 
-        function loadVoices() { state.voices = window.speechSynthesis.getVoices(); }
-        window.speechSynthesis.onvoiceschanged = loadVoices;
-
-        window.onload = () => {
-            loadVoices();
-            // 嘗試從雲端抓取題目
+        function fetchData() {
             fetch(SHEET_API_URL)
                 .then(res => res.json())
                 .then(data => {
-                    state.questions = data;
-                    resetGame();
-                })
-                .catch(err => {
-                    document.getElementById('questionBox').innerText = "ERROR: Cloud Connection Failed! ❌";
-                    console.error('Debug:', err);
+                    state.questions = data.sort(() => Math.random() - 0.5);
+                    loadQuestion();
                 });
-        };
-
-        function resetGame() {
-            if (!state.questions || state.questions.length === 0) return;
-            state.currentIndex = 0; state.bossHp = 100; state.playerHp = 100; state.isBusy = false;
-            state.questions = state.questions.sort(() => Math.random() - 0.5);
-            updateBars();
-            loadQuestion();
         }
 
         function loadQuestion() {
-            if (state.bossHp <= 0 || state.playerHp <= 0 || state.currentIndex >= state.questions.length) {
-                setTimeout(() => {
-                    alert(state.bossHp <= 0 ? "🏆 MISSION CLEARED!" : "💀 GAME OVER!");
-                    resetGame();
-                }, 500);
-                return;
+            if(state.bossHp <= 0 || state.currentIndex >= state.questions.length) {
+                endGame(true); return;
             }
-            state.isBusy = false;
-            const qData = state.questions[state.currentIndex];
-            document.getElementById('questionBox').innerHTML = `<span style="font-size:16px; color:var(--neon-green);">WAVE ${state.currentIndex + 1}</span><br>${qData.q}`;
-            
-            const box = document.getElementById('optionsBox');
-            box.innerHTML = '';
-            qData.options.forEach(opt => {
-                const btn = document.createElement('button');
-                btn.className = 'opt-btn'; btn.innerText = opt;
-                btn.onclick = () => handleChoice(opt, qData.answer, btn);
+            if(state.playerHp <= 0) {
+                endGame(false); return;
+            }
+            const q = state.questions[state.currentIndex];
+            document.getElementById('questionBox').innerText = q.q;
+            const box = document.getElementById('optionsBox'); box.innerHTML = '';
+            q.options.forEach(opt => {
+                const btn = document.createElement('button'); btn.className = 'opt-btn'; btn.innerText = opt;
+                btn.onclick = () => {
+                    window.speechSynthesis.speak(new SpeechSynthesisUtterance(opt));
+                    if(opt === q.answer) {
+                        state.bossHp -= Math.ceil(100 / state.questions.length);
+                        document.getElementById('bossHp').style.width = state.bossHp + "%";
+                        state.currentIndex++; loadQuestion();
+                    } else {
+                        state.playerHp -= 25;
+                        document.getElementById('playerHp').style.width = state.playerHp + "%";
+                        if(state.playerHp <= 0) endGame(false);
+                    }
+                };
                 box.appendChild(btn);
             });
         }
 
-        function handleChoice(selected, correct, btn) {
-            if (state.isBusy) return;
-            state.isBusy = true;
-            
-            const utter = new SpeechSynthesisUtterance(selected);
-            utter.lang = 'en-US';
-            window.speechSynthesis.speak(utter);
+        function endGame(win) {
+            const score = Math.max(0, state.bossHp <= 0 ? 100 : Math.round((state.currentIndex / state.questions.length) * 100));
+            document.getElementById('questionBox').innerHTML = win ? "🏆 MISSION CLEARED!<br>Uploading Score..." : "💀 GAME OVER!<br>Uploading Score...";
+            document.getElementById('optionsBox').innerHTML = '';
 
-            if (String(selected) === String(correct)) {
-                state.bossHp -= Math.ceil(100 / state.questions.length);
-                btn.style.background = "var(--neon-green)";
-                document.getElementById('bossAvatar').style.filter = "invert(1) sepia(1) saturate(5) hue-rotate(300deg)";
-            } else {
-                state.playerHp -= 25;
-                btn.style.background = "var(--neon-pink)";
-                document.getElementById('playerAvatar').style.filter = "invert(1) sepia(1) saturate(5) hue-rotate(0deg)";
-            }
-            updateBars();
-            setTimeout(() => {
-                document.getElementById('bossAvatar').style.filter = "none";
-                document.getElementById('playerAvatar').style.filter = "none";
-                state.currentIndex++; loadQuestion();
-            }, 1500);
+            // 數據回收魔法：傳分數返 Google Sheet
+            fetch(SHEET_API_URL, {
+                method: "POST",
+                body: JSON.stringify({ name: state.playerName, score: score + "/100" })
+            }).then(() => {
+                document.getElementById('questionBox').innerHTML += "<br>✅ Score Saved!";
+            });
         }
-
-        function updateBars() {
-            document.getElementById('bossHp').style.width = Math.max(0, state.bossHp) + "%";
-            document.getElementById('playerHp').style.width = Math.max(0, state.playerHp) + "%";
-        }
-
-        let audioCtx; let isBgm = false; let bgmInt;
-        function toggleBGM() {
-            if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            isBgm = !isBgm;
-            const btn = document.getElementById('bgmBtn');
-            if(isBgm) {
-                btn.innerText = "🔊 BGM: ON";
-                bgmInt = setInterval(() => {
-                    const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
-                    osc.connect(gain); gain.connect(audioCtx.destination);
-                    osc.type = 'triangle';
-                    osc.frequency.setValueAtTime([523, 659, 783, 659][Math.floor(Math.random()*4)], audioCtx.currentTime);
-                    gain.gain.setTargetAtTime(0.05, audioCtx.currentTime, 0.1);
-                    osc.start(); osc.stop(audioCtx.currentTime + 0.2);
-                }, 250);
-            } else {
-                btn.innerText = "🎵 BGM: OFF";
-                clearInterval(bgmInt);
-            }
-        }
-
-        function showModal(id) { document.getElementById(id).style.display = 'flex'; }
-        function closeModal() { document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); }
     </script>
 </body>
 </html>
