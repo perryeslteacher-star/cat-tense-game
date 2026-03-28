@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <title>忍者貓 Tenses 大戰</title>
+    <style>
+        /* 呢度就係你嘅 Style (CSS) */
+        body { background: #05050a; color: white; text-align: center; font-family: sans-serif; }
+        .cat { font-size: 100px; margin: 20px; }
+        .btn { padding: 20px; font-size: 20px; background: cyan; cursor: pointer; border-radius: 10px; margin: 10px; border:none; }
+    </style>
+</head>
+<body>
+    <h1>忍者貓 vs 暴躁貓</h1>
+    <div class="cat">😾</div>
+    <div id="question">Loading...</div>
+    <div id="options"></div>
+    <div class="cat">🐱‍👤</div>
+
+    <script>
+        // 呢度係你嘅 JavaScript
+        const questions = [
+            { q: "I _____ (play) football yesterday.", options: ["play", "played", "playing"], answer: "played" },
+            { q: "Look! He _____ (run) now.", options: ["run", "is running", "runs"], answer: "is running" }
+        ];
+        
+        // 簡單顯示題目 (暫時版)
+        document.getElementById('question').innerText = questions[0].q;
+        questions[0].options.forEach(opt => {
+            let b = document.createElement('button');
+            b.innerText = opt;
+            b.className = 'btn';
+            b.onclick = () => alert(opt === questions[0].answer ? "Correct!" : "Wrong!");
+            document.getElementById('options').appendChild(b);
+        });
+    </script>
+</body>
+</html>
