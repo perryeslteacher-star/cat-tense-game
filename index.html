@@ -2,37 +2,94 @@
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
-    <title>忍者貓 Tenses 大戰</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TENSES WARRIOR: CAT EDITION</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Noto+Sans+TC:wght@700;900&display=swap" rel="stylesheet">
     <style>
-        /* 呢度就係你嘅 Style (CSS) */
-        body { background: #05050a; color: white; text-align: center; font-family: sans-serif; }
-        .cat { font-size: 100px; margin: 20px; }
-        .btn { padding: 20px; font-size: 20px; background: cyan; cursor: pointer; border-radius: 10px; margin: 10px; border:none; }
+        :root { --neon-blue: #00f2ff; --neon-pink: #ff0055; --neon-yellow: #f8b500; --glass: rgba(20, 20, 35, 0.95); }
+        body { font-family: 'Noto Sans TC', sans-serif; background: #05050a; color: white; margin: 0; min-height: 100vh; overflow-x: hidden; display: flex; flex-direction: column; }
+        .top-nav { display: flex; flex-wrap: wrap; justify-content: center; padding: 15px; background: #111; border-bottom: 3px solid var(--neon-blue); gap: 10px; }
+        .nav-btn { background: var(--glass); border: 2px solid var(--neon-blue); color: var(--neon-blue); padding: 8px 12px; border-radius: 10px; cursor: pointer; font-size: 14px; font-family: 'Orbitron'; transition: 0.2s; }
+        .nav-btn:active { transform: scale(0.9); background: var(--neon-blue); color: black; }
+        .game-arena { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 20px; gap: 15px; }
+        .avatar { font-size: 80px; filter: drop-shadow(0 0 15px white); transition: 0.3s; }
+        .hp-bar { width: 200px; height: 15px; background: #333; border: 2px solid #555; border-radius: 10px; overflow: hidden; }
+        .hp-inner { height: 100%; width: 100%; transition: 0.5s; }
+        .quiz-container { background: var(--glass); border: 2px solid var(--neon-blue); border-radius: 20px; padding: 20px; width: 90%; max-width: 500px; font-size: 22px; text-align: center; }
+        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 90%; max-width: 500px; margin-bottom: 20px; }
+        .opt-btn { background: rgba(255,255,255,0.1); border: 2px solid var(--neon-blue); color: white; padding: 15px; border-radius: 12px; font-size: 18px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .opt-btn:active { transform: scale(0.95); }
+        @keyframes jiggle { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1) rotate(5deg); } }
+        .correct-anim { background: var(--neon-green) !important; color: black !important; animation: jiggle 0.3s; }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 100; flex-direction: column; align-items: center; justify-content: center; }
+        .modal-content { background: #1a1a2e; border: 3px solid var(--neon-blue); border-radius: 20px; padding: 20px; width: 85%; max-width: 400px; }
     </style>
 </head>
 <body>
-    <h1>忍者貓 vs 暴躁貓</h1>
-    <div class="cat">😾</div>
-    <div id="question">Loading...</div>
-    <div id="options"></div>
-    <div class="cat">🐱‍👤</div>
+    <div class="top-nav">
+        <button class="nav-btn" onclick="toggleBGM()">🎵 BGM: OFF</button>
+        <button class="nav-btn" onclick="showModal('grammarModal')">📖 RULES</button>
+        <button class="nav-btn" style="border-color:var(--neon-pink)" onclick="location.reload()">🔄 RESET</button>
+    </div>
+    <div class="game-arena">
+        <div><div id="bossAvatar" class="avatar">😾</div><div class="hp-bar"><div id="bossHp" class="hp-inner" style="background:red"></div></div></div>
+        <div class="quiz-container" id="questionBox">LOADING...</div>
+        <div><div class="hp-bar"><div id="playerHp" class="hp-inner" style="background:cyan"></div></div><div id="playerAvatar" class="avatar">🐱‍👤</div></div>
+    </div>
+    <div class="options-grid" id="optionsBox"></div>
+
+    <div id="grammarModal" class="modal">
+        <div class="modal-content">
+            <h3>Tense Rules ⏳</h3>
+            <p>🔄 Every day -> eat / eats</p>
+            <p>⚡ Now -> am/is/are eating</p>
+            <p>⏪ Yesterday -> ate / -ed</p>
+            <button class="nav-btn" onclick="closeModal()">CLOSE</button>
+        </div>
+    </div>
 
     <script>
-        // 呢度係你嘅 JavaScript
         const questions = [
-            { q: "I _____ (play) football yesterday.", options: ["play", "played", "playing"], answer: "played" },
-            { q: "Look! He _____ (run) now.", options: ["run", "is running", "runs"], answer: "is running" }
+            { q: "I _____ (go) to the park yesterday.", options: ["go", "went", "going"], answer: "went" },
+            { q: "Look! The cat _____ (sleep) now.", options: ["sleep", "is sleeping", "slept"], answer: "is sleeping" },
+            { q: "She always _____ (eat) apples.", options: ["eat", "is eating", "drinks", "eats"], answer: "eats" },
+            { q: "They _____ (buy) a new car last week.", options: ["buy", "bought", "buying"], answer: "bought" }
         ];
-        
-        // 簡單顯示題目 (暫時版)
-        document.getElementById('question').innerText = questions[0].q;
-        questions[0].options.forEach(opt => {
-            let b = document.createElement('button');
-            b.innerText = opt;
-            b.className = 'btn';
-            b.onclick = () => alert(opt === questions[0].answer ? "Correct!" : "Wrong!");
-            document.getElementById('options').appendChild(b);
-        });
+        let currentIdx = 0; let bossHp = 100;
+
+        function loadQuestion() {
+            if(bossHp <= 0 || currentIdx >= questions.length) { document.getElementById('questionBox').innerText = "🏆 VICTORY!"; return; }
+            const q = questions[currentIdx];
+            document.getElementById('questionBox').innerText = q.q;
+            const box = document.getElementById('optionsBox'); box.innerHTML = '';
+            q.options.forEach(opt => {
+                const btn = document.createElement('button'); btn.className = 'opt-btn'; btn.innerText = opt;
+                btn.onclick = () => {
+                    window.speechSynthesis.speak(new SpeechSynthesisUtterance(opt));
+                    if(opt === q.answer) { bossHp -= 25; document.getElementById('bossHp').style.width = bossHp + "%"; currentIdx++; loadQuestion(); }
+                    else { alert("Try again!"); }
+                };
+                box.appendChild(btn);
+            });
+        }
+
+        // BGM 邏輯 (8-bit Funny)
+        let audioCtx; let isBgm = false; let bgmInt;
+        function toggleBGM() {
+            if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            isBgm = !isBgm;
+            if(isBgm) { bgmInt = setInterval(() => {
+                const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.frequency.setValueAtTime([523, 659, 783][Math.floor(Math.random()*3)], audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.2);
+            }, 300); } else { clearInterval(bgmInt); }
+        }
+
+        function showModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeModal() { document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); }
+        window.onload = loadQuestion;
     </script>
 </body>
 </html>
